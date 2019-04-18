@@ -1,0 +1,36 @@
+#version 330 core
+
+uniform vec3 LightPosition_worldspace;
+uniform vec3 LightColor_worldspace;
+out vec3 color;
+
+in vec3 Position_worldspace;
+in vec3 Normal_cameraspace;
+in vec3 EyeDirection_cameraspace;
+in vec3 LightDirection_cameraspace;
+
+void main(){
+    /*
+    float ambientStrength = 0.5f;
+    vec3 ambient = ambientStrength * LightColor_worldspace * objectColor;
+    color = ambient;
+    */
+    vec3 LightColor = LightColor_worldspace;
+    vec3 MaterialAmbientColor = vec3(0.5f, 0.8f, 0.31f);
+    vec3 MaterialDiffuseColor = vec3(1.0f, 0.8f, 0.31f);
+    vec3 MaterialSpecularColor = vec3(1.0f, 1.0f, 1.0f);
+
+    float distance = length( LightPosition_worldspace - Position_worldspace );
+    vec3 n = normalize( Normal_cameraspace );
+    vec3 l = normalize( LightDirection_cameraspace );
+    float cosTheta = clamp( dot( n,l ), 0,1 );
+
+    vec3 E = normalize(EyeDirection_cameraspace);
+    vec3 R = reflect(-l,n);
+    float cosAlpha = clamp( dot( E,R ), 0,1 );
+
+    color =
+      MaterialAmbientColor +
+      MaterialDiffuseColor * LightColor * cosTheta / (distance*distance) +
+      MaterialSpecularColor * LightColor * pow(cosAlpha,5) / (distance*distance);
+}
